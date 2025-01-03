@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id 'war'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+    }
+}
+
+compileJava.options.encoding = 'UTF-8'
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+}
+tasks.withType(JavaExec) {
+    jvmArgs += [
+            '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.util=ALL-UNNAMED'
+    ]
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+    implementation 'cglib:cglib:3.3.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+processResources {
+    from('src/main/resources') {
+        include '**/*.properties'
+        include '**/*.xml'
+        include 'META-INF/services/**'
+    }
+}
