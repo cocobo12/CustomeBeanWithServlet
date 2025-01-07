@@ -4,6 +4,6 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 
 
-public interface InitApp<T> {
-    void init(T t, ServletContextEvent sce);
+public interface InitApp {
+    void init(String packageName, ServletContextEvent sce);
 }

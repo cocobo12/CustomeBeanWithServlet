@@ -3,11 +3,14 @@ package main.java.khj.service;
 import jakarta.servlet.http.HttpServletRequest;
 import main.java.khj.annotation.CustomAutowired;
 import main.java.khj.annotation.CustomBean;
+import main.java.khj.annotation.CustomComponent;
 import main.java.khj.config.BeanConfig;
+import main.java.khj.model.Member;
 import main.java.khj.repository.MemberRepository;
 import main.java.khj.repository.MemberRepositoryImp;
 
-@CustomBean("loginService")
+
+@CustomComponent("loginService")
 public class LoginServiceImp implements LoginService {
 
 
@@ -16,24 +19,19 @@ public class LoginServiceImp implements LoginService {
 
 
     @Override
-    public boolean login(String id, String pw, HttpServletRequest req) {
+    public boolean login(HttpServletRequest req, Member member) {
         boolean result = false;
         System.out.println("LoginServiceImp access!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
-        // 의존성 주입 ---------------------------------------------------------------------------------
-        BeanConfig beanConfig = (BeanConfig) req.getServletContext().getAttribute("beanConfig");
-        System.out.println("beanConfig :: " + beanConfig);
-        beanConfig.injectDependencies(this);
-        // -------------------------------------------------------------------------------------------
-        if(id == null || pw == null) {
+        req.getServletContext().getAttribute("components");
+        if (member == null) {
             return false;
         }
 
 
-        try{
-            memberRepository.save(id,pw);
+        try {
+            memberRepository.save(member);
             result = true;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return result;

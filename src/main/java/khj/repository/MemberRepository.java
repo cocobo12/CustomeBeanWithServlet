@@ -1,5 +1,7 @@
 package main.java.khj.repository;
 
+import main.java.khj.model.Member;
+
 public interface MemberRepository {
-    void save(String id, String pw);
+    Member save(Member member);
 }

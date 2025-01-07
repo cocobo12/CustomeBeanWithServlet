@@ -5,6 +5,7 @@ import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
 import main.java.khj.config.BeanConfig;
+import main.java.khj.config.MappingConfig;
 
 
 @WebListener
@@ -15,15 +16,16 @@ public class AppContextListener implements ServletContextListener {
 
         System.out.println("cotextInit-----------------------------------------------------");
         String packageName = "main.java.khj";
+        // Bean 등 초기화
         MyContainerInit myContainerInit = new MyContainerInit();
         myContainerInit.initAll(packageName, sce);
+
+        // 컴포넌트 초기화
+//        MappingConfig mappingConfig = new MappingConfig();
+//        mappingConfig.init(packageName, sce);
+
         System.out.println("init context comp!!!!!!!!!!!!!!!");
 
-        // BeanConfig 생성 및 서블릿 컨텍스트에 등록
-//        BeanConfig beanConfig = BeanConfig.getInstance();
-//        System.out.println("beanConfig init : " + beanConfig);
-//        System.out.println("beans : " + beanConfig.getBeans());
-//        sce.getServletContext().setAttribute("beanConfig", beanConfig); // 서블릿 컨텍스트에 저장
     }
 
     @Override

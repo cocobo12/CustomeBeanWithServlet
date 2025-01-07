@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CustomConfiguration {
+    int order() default Integer.MAX_VALUE; // 기본 값 최대값
 }
