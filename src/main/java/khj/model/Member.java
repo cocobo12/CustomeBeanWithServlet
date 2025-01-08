@@ -1,4 +1,4 @@
-package main.java.khj.model;
+package khj.model;
 
 public class Member {
 
@@ -6,28 +6,29 @@ public class Member {
 
     String email;
     String pw;
+
     public Member(String email, String pw) {
         this.email = email;
         this.pw = pw;
     }
 
-    public Member(){
+    public Member() {
 
     }
 
-    public Long getId(){
+    public Long getId() {
         return id;
     }
 
-    public String getEmail(){
+    public String getEmail() {
         return email;
     }
 
-    public String getPw(){
+    public String getPw() {
         return pw;
     }
 
-    public void setId(Long id){
+    public void setId(Long id) {
         this.id = id;
     }
 }

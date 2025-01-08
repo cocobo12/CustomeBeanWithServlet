@@ -1,4 +1,4 @@
-package main.java.khj.model;
+package khj.model;
 
 import java.util.HashMap;
 import java.util.Map;

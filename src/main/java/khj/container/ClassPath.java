@@ -1,4 +1,4 @@
-package main.java.khj.container;
+package khj.container;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +8,8 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
+
+// 애노테이션 추적용 클래스
 public class ClassPath {
 
     // 클래스패스를 스캔하여 특정 조건에 맞는 클래스를 수집

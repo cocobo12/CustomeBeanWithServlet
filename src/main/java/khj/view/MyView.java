@@ -1,4 +1,4 @@
-package main.java.khj.view;
+package khj.view;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
+// 뷰 렌더링 클래스
 public class MyView {
 
     private String viewPath;

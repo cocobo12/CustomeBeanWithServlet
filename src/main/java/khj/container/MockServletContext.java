@@ -1,4 +1,4 @@
-package main.java.khj.container;
+package khj.container;
 
 import jakarta.servlet.*;
 import jakarta.servlet.descriptor.JspConfigDescriptor;
@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
+// 테스트용 서블릿 컨텍스트
 public class MockServletContext implements ServletContext {
 
     private final Map<String, MockServletRegistration> servletRegistrations = new HashMap<>();

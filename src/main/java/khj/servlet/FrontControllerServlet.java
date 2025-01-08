@@ -1,4 +1,4 @@
-package main.java.khj.servlet;
+package khj.servlet;
 
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -6,17 +6,18 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import main.java.khj.container.adapter.ControllerHandlerAdapter;
-import main.java.khj.container.adapter.MyHandlerAdapter;
-import main.java.khj.model.ModelView;
-import main.java.khj.view.MyView;
+import khj.container.adapter.ControllerHandlerAdapter;
+import khj.container.adapter.MyHandlerAdapter;
+import khj.model.ModelView;
+import khj.view.MyView;
+
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet(name = "frontControllerServlet", urlPatterns = "/*")
+@WebServlet(name = "frontControllerServlet", urlPatterns = "/bro/*")
 public class FrontControllerServlet extends HttpServlet {
 
 
@@ -36,7 +37,7 @@ public class FrontControllerServlet extends HttpServlet {
 
 
     private void initHandlerAdapters() {
-        System.out.println("init adapter!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        System.out.println("init adapter");
         handlerAdapters.add(new ControllerHandlerAdapter());
     }
 
@@ -45,20 +46,17 @@ public class FrontControllerServlet extends HttpServlet {
         System.out.println("Mapping list : " + handlerMappingMap);
         System.out.println("param : " + request.getRequestURI());
         Object handler = getHandler(request);
-        System.out.println("handler : " + handler);
         if (handler == null) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 
         MyHandlerAdapter adapter = getHandlerAdapter(handler);
-        System.out.println("adapter@ : " + adapter);
         ModelView mv = adapter.handle(request, response, handler);
 
         String viewName = mv.getViewName();
-        System.out.println("frontCon viewName : " + viewName);
+        System.out.println("viewName : " + viewName);
         MyView view = viewResolver(viewName);
-        System.out.println("MyView : " + view);
         view.render(mv.getModel(), request, response);
 
     }
@@ -69,10 +67,10 @@ public class FrontControllerServlet extends HttpServlet {
     }
 
     private MyHandlerAdapter getHandlerAdapter(Object handler) {
-        System.out.println("getHandlerAdapter------------------------------------------");
-        System.out.println("handler : " + handler);
-        System.out.println("handler class : " + handler.getClass());
-        System.out.println("-----------------------------------------------------------");
+//        System.out.println("getHandlerAdapter------------------------------------------");
+//        System.out.println("handler : " + handler);
+//        System.out.println("handler class : " + handler.getClass());
+//        System.out.println("-----------------------------------------------------------");
         //MemberFormController
         for (MyHandlerAdapter adapter : handlerAdapters) {
             if (adapter.supports(handler)) {

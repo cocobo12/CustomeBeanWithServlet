@@ -1,7 +1,11 @@
-package main.java.khj.repository;
+package khj.repository;
 
-import main.java.khj.model.Member;
+
+import khj.model.Member;
 
 public interface MemberRepository {
     Member save(Member member);
+
+    Member findByEmailWithEqualsPassword(Member member);
+
 }

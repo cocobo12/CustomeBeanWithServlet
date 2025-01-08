@@ -1,12 +1,10 @@
-package main.java.khj.container.adapter;
+package khj.container.adapter;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import main.java.khj.controller.Controller;
-import main.java.khj.model.ModelView;
+import khj.controller.Controller;
+import khj.model.ModelView;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,21 +16,17 @@ public class ControllerHandlerAdapter implements MyHandlerAdapter {
     }
 
     @Override
-    public ModelView handle(HttpServletRequest request, HttpServletResponse response, Object con) throws ServletException, IOException {
-        System.out.println("access controller adapter!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    public ModelView handle(HttpServletRequest request, HttpServletResponse response, Object con) {
+        //System.out.println("access controller adapter----------------------");
         Controller controller = (Controller) con;
 
         Map<String, String> paramMap = createParamMap(request);
-        System.out.println("paramMap : " + paramMap);
+        //System.out.println("paramMap : " + paramMap);
 
-        HashMap<String, Object> model = new HashMap<>();
 
-        String viewName = controller.process(paramMap, model, request);
-        System.out.println("viewName : " + viewName);
-
-        ModelView mv = new ModelView(viewName);
-        mv.setModel(model);
-
+        ModelView mv = controller.process(paramMap, request);
+        System.out.println("viewName : " + mv.getViewName());
+        //System.out.println("end controller adapter------------------------");
         return mv;
     }
 

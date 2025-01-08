@@ -1,9 +1,9 @@
-package main.java.khj.service;
+package khj.service;
 
 import jakarta.servlet.http.HttpServletRequest;
-import main.java.khj.model.Member;
+import khj.model.Member;
 
 public interface LoginService {
 
-    boolean login(HttpServletRequest req, Member member);
+    Member login(HttpServletRequest req, Member member);
 }

@@ -1,4 +1,4 @@
-package main.java.khj.config.handler;
+package khj.config.handler;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -16,13 +16,13 @@ public class CustomInvocationHandlerCglib implements MethodInterceptor {
     @Override
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
         // 전처리 로직
-        System.out.println("Before method: " + method.getName());
+        System.out.println("cglib Before method: " + method.getName());
 
         // 원래 메서드 호출
         Object result = method.invoke(target, args);
 
         // 후처리 로직
-        System.out.println("After method: " + method.getName());
+        System.out.println("cglib After method: " + method.getName());
         return result;
     }
 

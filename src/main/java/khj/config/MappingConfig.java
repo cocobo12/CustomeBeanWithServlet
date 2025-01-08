@@ -1,9 +1,12 @@
-package main.java.khj.config;
+package khj.config;
 
 import jakarta.servlet.ServletContextEvent;
-import main.java.khj.annotation.*;
-import main.java.khj.config.handler.CustomInvocationHandler;
-import main.java.khj.config.handler.CustomInvocationHandlerCglib;
+import khj.annotation.CustomComponent;
+import khj.annotation.CustomConfiguration;
+import khj.annotation.CustomRequstMapping;
+import khj.config.handler.CustomInvocationHandler;
+import khj.config.handler.CustomInvocationHandlerCglib;
+
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
@@ -11,7 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static main.java.khj.container.ClassPath.findClassesWithAnnotation;
+import static khj.container.ClassPath.findClassesWithAnnotation;
+
 
 @CustomConfiguration(order = 2)
 public class MappingConfig implements InitApp {
@@ -42,7 +46,6 @@ public class MappingConfig implements InitApp {
 
                 // 클래스의 인스턴스 생성
                 Object instance = compClass.getDeclaredConstructor().newInstance();
-                //Object reactInstance = getRealObject(instance);
 
                 // components에 저장
                 components.put(compName, instance);
@@ -61,15 +64,16 @@ public class MappingConfig implements InitApp {
             for (Class<?> map : maps) {
                 CustomRequstMapping customRequstMapping = map.getAnnotation(CustomRequstMapping.class);
                 String url = customRequstMapping.value();
-                System.out.println("components2 : " + components);
-                System.out.println("url : " + url);
-                System.out.println("map : " + map);
-                System.out.println("map name : " + map.getSimpleName());
-                System.out.println("map class : " + map.getDeclaredConstructor());
-                System.out.println("map class new : " + map.getDeclaredConstructor().newInstance());
+//                System.out.println("Components : " + components);
+//                System.out.println("url : " + url);
+//                System.out.println("map : " + map);
+//                System.out.println("map name : " + map.getSimpleName());
+//                System.out.println("map class : " + map.getDeclaredConstructor());
+//                System.out.println("map class new : " + map.getDeclaredConstructor().newInstance());
 
                 requestMapping.put(url, map.getDeclaredConstructor().newInstance());
             }
+            beanConfig.injectDependenciesComps(requestMapping);
 
             // 서블릿 컨텍스트에 저장
             sce.getServletContext().setAttribute("components", components);
@@ -83,21 +87,4 @@ public class MappingConfig implements InitApp {
         }
     }
 
-    // Proxy에서 실제 객체 추출
-    private Object getRealObject(Object proxy) {
-        if (Proxy.isProxyClass(proxy.getClass())) {
-            InvocationHandler handler = Proxy.getInvocationHandler(proxy);
-            if (handler instanceof CustomInvocationHandler) {
-                return ((CustomInvocationHandler) handler).getTarget();
-            }
-        } else if (proxy instanceof net.sf.cglib.proxy.Factory) {
-            // CGLIB 프록시에서 실제 객체 추출
-            net.sf.cglib.proxy.Factory factory = (net.sf.cglib.proxy.Factory) proxy;
-            net.sf.cglib.proxy.Callback callback = factory.getCallback(0);
-            if (callback instanceof CustomInvocationHandlerCglib) {
-                return ((CustomInvocationHandlerCglib) callback).getTarget();
-            }
-        }
-        return proxy; // 프록시가 아닌 경우 원래 객체 반환
-    }
 }

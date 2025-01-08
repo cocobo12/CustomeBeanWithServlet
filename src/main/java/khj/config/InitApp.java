@@ -1,6 +1,5 @@
-package main.java.khj.config;
+package khj.config;
 
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 
 

@@ -1,13 +1,10 @@
-package main.java.khj.service;
+package khj.service;
 
 import jakarta.servlet.http.HttpServletRequest;
-import main.java.khj.annotation.CustomAutowired;
-import main.java.khj.annotation.CustomBean;
-import main.java.khj.annotation.CustomComponent;
-import main.java.khj.config.BeanConfig;
-import main.java.khj.model.Member;
-import main.java.khj.repository.MemberRepository;
-import main.java.khj.repository.MemberRepositoryImp;
+import khj.annotation.CustomAutowired;
+import khj.annotation.CustomComponent;
+import khj.model.Member;
+import khj.repository.MemberRepository;
 
 
 @CustomComponent("loginService")
@@ -19,18 +16,16 @@ public class LoginServiceImp implements LoginService {
 
 
     @Override
-    public boolean login(HttpServletRequest req, Member member) {
-        boolean result = false;
-        System.out.println("LoginServiceImp access!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        req.getServletContext().getAttribute("components");
+    public Member login(HttpServletRequest req, Member member) {
+        Member result = null;
+        //req.getServletContext().getAttribute("components");
         if (member == null) {
-            return false;
+            return result;
         }
 
-
         try {
-            memberRepository.save(member);
-            result = true;
+            Member member1 = memberRepository.findByEmailWithEqualsPassword(member);
+            result = member1;
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,14 +1,13 @@
-package main.java.khj.config;
+package khj.config;
 
 import jakarta.servlet.ServletContextEvent;
-import main.java.khj.annotation.CustomBean;
-import main.java.khj.annotation.CustomConfiguration;
-import main.java.khj.repository.MemberRepositoryImp;
-import main.java.khj.service.LoginServiceImp;
+import khj.annotation.CustomBean;
+import khj.repository.MemberRepositoryImp;
+import khj.service.JoinServiceImp;
+import khj.service.LoginServiceImp;
 
 
 public class IocConfig {
-
 
     @CustomBean("memberRepository")
     MemberRepositoryImp memberRepository = new MemberRepositoryImp();
@@ -16,5 +15,6 @@ public class IocConfig {
     @CustomBean("loginService")
     LoginServiceImp loginService = new LoginServiceImp();
 
-
+    @CustomBean("joinService")
+    JoinServiceImp joinService = new JoinServiceImp();
 }

@@ -1,9 +1,9 @@
-package main.java.khj.container.adapter;
+package khj.container.adapter;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import main.java.khj.model.ModelView;
+import khj.model.ModelView;
 
 import java.io.IOException;
 

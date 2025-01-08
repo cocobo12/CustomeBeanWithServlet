@@ -1,15 +1,15 @@
-package main.java.khj.container;
+package khj.container;
 
 import jakarta.servlet.ServletContextEvent;
-import jakarta.servlet.http.HttpServletRequest;
-import main.java.khj.annotation.CustomConfiguration;
-import main.java.khj.config.InitApp;
+import khj.annotation.CustomConfiguration;
+import khj.config.InitApp;
+
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static main.java.khj.container.ClassPath.findClassesWithAnnotation;
+import static khj.container.ClassPath.findClassesWithAnnotation;
 
 
 public class MyContainerInit {

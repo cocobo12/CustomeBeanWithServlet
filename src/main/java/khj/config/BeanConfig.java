@@ -1,11 +1,12 @@
-package main.java.khj.config;
+package khj.config;
 
 import jakarta.servlet.ServletContextEvent;
-import main.java.khj.annotation.CustomAutowired;
-import main.java.khj.annotation.CustomBean;
-import main.java.khj.annotation.CustomConfiguration;
-import main.java.khj.config.handler.CustomInvocationHandler;
-import main.java.khj.config.handler.CustomInvocationHandlerCglib;
+
+import khj.annotation.CustomAutowired;
+import khj.annotation.CustomBean;
+import khj.annotation.CustomConfiguration;
+import khj.config.handler.CustomInvocationHandler;
+import khj.config.handler.CustomInvocationHandlerCglib;
 import net.sf.cglib.proxy.Enhancer;
 
 import java.lang.reflect.Field;
@@ -15,8 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static main.java.khj.container.ClassPath.findClassesWithAnnotation;
-import static main.java.khj.container.ClassPath.findClassesWithFieldAnnotation;
+import static khj.container.ClassPath.findClassesWithFieldAnnotation;
+
 
 @CustomConfiguration(order = 1)
 public class BeanConfig implements InitApp {
@@ -82,12 +83,9 @@ public class BeanConfig implements InitApp {
                 }
             }
 
-            // @CustomAutowired가 달린 필드에 의존성 주입
-            for (Object bean : beans.values()) {
-                injectDependencies(bean);
-            }
 
             System.out.println("beans : " + beans);
+
             // 서블릿 컨텍스트에 저장
             sce.getServletContext().setAttribute("beanConfig", this);
             System.out.println("Bean initialization completed!");
@@ -97,57 +95,91 @@ public class BeanConfig implements InitApp {
         }
     }
 
-//    @Override
-//    public void init(String packageName, ServletContextEvent sce) {
-//        try {
-//            // CustomBean 애노테이션이 있는 클래스 검색
-//            Set<Class<?>> beanClasses = findClassesWithFieldAnnotation(CustomBean.class, packageName);
-//            System.out.println("beanClasses : " + beanClasses);
-//            // 객체 생성 및 저장
-//            for (Class<?> beanClass : beanClasses) {
-//                for (Field field : beanClass.getDeclaredFields()) {
-//                    if (field.isAnnotationPresent(CustomBean.class)) {
-//                        Object instance = field.getClass().getDeclaredConstructor().newInstance();
-//                        System.out.println("bean class : " + instance);
-//
-//                        // 프록시 생성
-//                        Object proxy = createProxy(instance);
-//
-//                        // Bean 이름 설정
-//                        CustomBean customBean = field.getAnnotation(CustomBean.class);
-//                        System.out.println("customBean : " + customBean);
-//                        String beanName = customBean.value().isEmpty() ? beanClass.getSimpleName() : customBean.value();
-//
-//                        // 인터페이스 타입으로도 저장
-////                Class<?>[] interfaces = beanClass.getInterfaces();
-////                if (interfaces.length > 0) {
-////                    for (Class<?> iface : interfaces) {
-////                        beans.put(iface.getSimpleName(), proxy);
-////                    }
-////                }
-//
-//                        beans.put(beanName, proxy);
-//                        System.out.println("beans : " + beans);
-//                        System.out.println("beanName : " + beanName + " proxy : " + proxy);
-//                    }
-//                }
-//            }
-//
-//
-//            // @CustomAutowired가 달린 필드에 의존성 주입
-////            for (Object bean : beans.values()) {
-////                injectDependencies(bean);
-////            }
-//
-//            sce.getServletContext().setAttribute("beanConfig", this); // 서블릿 컨텍스트에 저장
-//            System.out.println("init bean!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException("Failed to initialize beans", e);
-//        }
-//    }
 
+    //Map으로 받은 파라미터의 value값에 클래스 내에, @CustomAutowired()가 달린 필드에
+    public void injectDependenciesComps(Map<String, Object> components) {
+        for (Map.Entry<String, Object> entry : components.entrySet()) {
+            Object component = entry.getValue();
+            Class<?> realClass = component.getClass();
+//            System.out.println("inject componet : " + component);
+//            System.out.println("inject realClass : " + realClass);
+            System.out.println("Injecting dependencies into: " + realClass.getName());
+
+            for (Field field : realClass.getDeclaredFields()) {
+                if (field.isAnnotationPresent(CustomAutowired.class)) {
+                    String dependencyName = field.getName();
+//                    System.out.println("field : " + field);
+//                    System.out.println("Dependency name: " + dependencyName);
+//                    System.out.println("Available beans: " + beans);
+                    Object dependency = beans.get(dependencyName);
+
+                    System.out.println("Field: " + field.getName() + ", Type: " + field.getType() + ", Dependency found: " + dependency);
+
+                    if (dependency != null) {
+                        try {
+                            field.setAccessible(true);
+                            Object realObject = getRealObject(component); // 프록시 확인 후 실제 객체 가져오기
+                            //System.out.println("realObject : " + realObject);
+                            Object nestDependency = injectNestedDependencies(dependency);
+                            //System.out.println("nestDependency : " + nestDependency);
+
+                            field.set(realObject, nestDependency);
+
+                            System.out.println("Successfully injected: " + dependency + " into " + field.getName());
+                        } catch (IllegalAccessException e) {
+                            throw new RuntimeException("Failed to inject dependency", e);
+                        }
+                    } else {
+                        System.out.println("No dependency found for: " + dependencyName);
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     * 의존성 주입된 객체의 내부 필드에서도 @CustomAutowired를 찾아 주입한 뒤, 객체를 반환하는 재귀 로직.
+     */
+    private Object injectNestedDependencies(Object dependency) {
+        if (dependency == null) {
+            return null;
+        }
+
+        Object nestReal = getRealObject(dependency);
+        Class<?> dependencyClass = nestReal.getClass();
+
+        System.out.println("Checking nested dependencies for: " + dependencyClass.getName());
+
+        for (Field nestedField : dependencyClass.getDeclaredFields()) {
+            if (nestedField.isAnnotationPresent(CustomAutowired.class)) {
+                String nestedDependencyName = nestedField.getName();
+                //System.out.println("Nested Field: " + nestedField);
+                //System.out.println("Nested Dependency name: " + nestedDependencyName);
+                Object nestedDependency = beans.get(nestedDependencyName);
+
+                if (nestedDependency != null) {
+                    try {
+                        nestedField.setAccessible(true);
+                        nestedField.set(nestReal, nestedDependency);
+                        System.out.println("Successfully injected nested dependency: " + nestedDependency + " into " + nestedField.getName());
+
+                        // **재귀 호출로 더 깊은 수준의 필드까지 탐색 및 주입**
+                        injectNestedDependencies(nestedDependency);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Failed to inject nested dependency", e);
+                    }
+                } else {
+                    System.out.println("No nested dependency found for: " + nestedDependencyName);
+                }
+            }
+        }
+
+        return dependency;
+    }
+
+
+    // 의존성 주입 한번.
     public void injectDependencies(Object proxyBean) {
         // 실제 클래스를 프록시로부터 가져와서 주입
         Object realBean = getRealObject(proxyBean);
@@ -158,8 +190,8 @@ public class BeanConfig implements InitApp {
         for (Field field : realClass.getDeclaredFields()) {
             if (field.isAnnotationPresent(CustomAutowired.class)) {
                 String dependencyName = field.getType().getSimpleName();
-                System.out.println("dependencyName : " + dependencyName);
-                System.out.println("bean list : " + beans);
+                //System.out.println("dependencyName : " + dependencyName);
+                //System.out.println("bean list : " + beans);
                 Object dependency = beans.get(dependencyName);
 
                 System.out.println("Field: " + field.getName() + ", Type: " + field.getType() + ", Dependency found: " + dependency);
@@ -178,77 +210,6 @@ public class BeanConfig implements InitApp {
             }
         }
     }
-
-    public void injectDependenciesComp(Object comp) {
-        // 실제 클래스를 프록시로부터 가져와서 주입
-
-        Class<?> realClass = comp.getClass();
-
-        System.out.println("Injecting dependencies into: " + realClass.getName());
-
-        for (Field field : realClass.getDeclaredFields()) {
-            if (field.isAnnotationPresent(CustomAutowired.class)) {
-                String dependencyName = field.getType().getSimpleName();
-                System.out.println("dependencyName : " + dependencyName);
-                System.out.println("bean list : " + beans);
-                Object dependency = beans.get(dependencyName);
-
-                System.out.println("Field: " + field.getName() + ", Type: " + field.getType() + ", Dependency found: " + dependency);
-
-                if (dependency != null) {
-                    try {
-                        field.setAccessible(true);
-                        // CustomAutowired 애노테이션 달린 필드 인스턴스와 동일한 이름의 인스턴스가 Bean에 존재하면, 실제 객체를 주입.
-                        Object realField = getRealObject(field);
-                        field.set(realField, dependency); // 변경 후, 변경전
-                        System.out.println("Successfully injected: " + dependency + " into " + field.getName());
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Failed to inject dependency", e);
-                    }
-                } else {
-                    System.out.println("No dependency found for: " + dependencyName);
-                }
-            }
-        }
-    }
-
-
-    //Map으로 받은 파라미터의 value값에 클래스 내에, @CustomAutowired()가 달린 필드에
-    public void injectDependenciesComps(Map<String, Object> components) {
-        for (Map.Entry<String, Object> entry : components.entrySet()) {
-            Object component = entry.getValue();
-            Class<?> realClass = component.getClass();
-            System.out.println("inject componet : " + component);
-            System.out.println("inject realClass : " + realClass);
-            System.out.println("Injecting dependencies into: " + realClass.getName());
-
-            for (Field field : realClass.getDeclaredFields()) {
-                if (field.isAnnotationPresent(CustomAutowired.class)) {
-                    String dependencyName = field.getName();
-                    System.out.println("field : " + field);
-                    System.out.println("Dependency name: " + dependencyName);
-                    System.out.println("Available beans: " + beans);
-                    Object dependency = beans.get(dependencyName);
-
-                    System.out.println("Field: " + field.getName() + ", Type: " + field.getType() + ", Dependency found: " + dependency);
-
-                    if (dependency != null) {
-                        try {
-                            field.setAccessible(true);
-                            Object realObject = getRealObject(component); // 프록시 확인 후 실제 객체 가져오기
-                            field.set(realObject, dependency);
-                            System.out.println("Successfully injected: " + dependency + " into " + field.getName());
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException("Failed to inject dependency", e);
-                        }
-                    } else {
-                        System.out.println("No dependency found for: " + dependencyName);
-                    }
-                }
-            }
-        }
-    }
-
 
     private Object createProxy(Object target) {
         Class<?>[] interfaces = target.getClass().getInterfaces();
@@ -288,7 +249,7 @@ public class BeanConfig implements InitApp {
             instance.beans.put(beanName, proxy);
 
             // 추가된 Bean에 의존성 주입
-            instance.injectDependencies(proxy);
+            instance.injectNestedDependencies(proxy);
         } catch (Exception e) {
             throw new RuntimeException("Failed to add bean", e);
         }
